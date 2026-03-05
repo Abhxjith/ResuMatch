@@ -47,6 +47,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
+if (process.env.VERCEL && !process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:/tmp/dev.db';
+}
+else if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:./prisma/dev.db';
+}
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const multer_1 = __importDefault(require("multer"));
@@ -56,7 +62,7 @@ const geminiOptimizer_1 = require("./services/geminiOptimizer");
 const latexGenerator_1 = require("./services/latexGenerator");
 const resumeSessionService_1 = require("./services/resumeSessionService");
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)({ origin: 'http://localhost:3000', credentials: true }));
+app.use((0, cors_1.default)({ origin: true, credentials: true }));
 app.use(express_1.default.json());
 const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 // ---------- POST /generate-resume ----------
