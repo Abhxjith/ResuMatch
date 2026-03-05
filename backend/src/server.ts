@@ -1,6 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+if (process.env.VERCEL && !process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:/tmp/dev.db';
+} else if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:./prisma/dev.db';
+}
+
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
