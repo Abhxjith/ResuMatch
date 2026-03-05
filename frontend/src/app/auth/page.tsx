@@ -209,11 +209,11 @@ export default function AuthPage() {
 
                     {/* Footer Links */}
                     <div className="flex justify-center gap-4 mt-20 text-[13px] text-[#999] font-medium">
-                        <Link href="#" className="hover:text-[#666] transition-colors">Help</Link>
+                        <Link href="/" className="hover:text-[#666] transition-colors">Help</Link>
                         <span>/</span>
-                        <Link href="#" className="hover:text-[#666] transition-colors">Terms</Link>
+                        <Link href="/" className="hover:text-[#666] transition-colors">Terms</Link>
                         <span>/</span>
-                        <Link href="#" className="hover:text-[#666] transition-colors">Privacy</Link>
+                        <Link href="/" className="hover:text-[#666] transition-colors">Privacy</Link>
                     </div>
                 </div>
             </div>

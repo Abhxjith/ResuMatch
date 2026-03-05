@@ -41,10 +41,10 @@ export default function Navbar() {
                     </div>
 
                     <div className={`hidden md:flex items-center font-medium text-[16px] leading-normal tracking-[-0.07em] text-[#333] transition-all duration-500 ${isScrolled ? "gap-6" : "gap-10"}`}>
-                        <a href="#" className="hover:text-black transition-colors">home</a>
-                        <a href="#how-it-works" className="hover:text-black transition-colors">how it works?</a>
-                        <a href="#pricing" className="hover:text-black transition-colors">pricing</a>
-                        <a href="#contact" className="hover:text-black transition-colors">contact</a>
+                        <button onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-black transition-colors">home</button>
+                        <button onClick={(e) => { e.preventDefault(); document.getElementById('how-it-works')?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-black transition-colors">how it works?</button>
+                        <button onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-black transition-colors">pricing</button>
+                        <button onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-black transition-colors">contact</button>
                     </div>
                     <div className="flex items-center gap-6">
                         {!user && (
