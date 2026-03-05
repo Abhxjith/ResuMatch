@@ -9,7 +9,7 @@ export default function Hero() {
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged((user: any) => {
             setUser(user);
         });
         return () => unsubscribe();

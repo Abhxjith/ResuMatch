@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, Auth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,9 +11,23 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+// Initialize Firebase only on the client side
+let app: FirebaseApp | undefined;
+let auth: Auth | any;
+let googleProvider: GoogleAuthProvider | any;
+
+if (typeof window !== "undefined" && firebaseConfig.apiKey) {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+} else {
+    app = undefined;
+    auth = {
+        currentUser: null,
+        signOut: async () => { },
+        onAuthStateChanged: () => () => { },
+    } as any;
+    googleProvider = {} as any;
+}
 
 export { app, auth, googleProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification };
