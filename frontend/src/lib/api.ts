@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://resu-match-lyart.vercel.app';
 
 export interface OptimizedResume {
     name?: string;
