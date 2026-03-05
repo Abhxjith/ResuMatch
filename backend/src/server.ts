@@ -18,6 +18,27 @@ import { optimizeResume } from './services/geminiOptimizer';
 import { generateLatex } from './services/latexGenerator';
 import { updateResumeSession, getSession } from './services/resumeSessionService';
 
+const { PrismaClient } = require('@prisma/client');
+const globalPrisma = new PrismaClient();
+
+if (process.env.VERCEL) {
+    globalPrisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS "ResumeSession" (
+            "id" TEXT NOT NULL PRIMARY KEY,
+            "parsedJson" TEXT,
+            "optimizedJson" TEXT,
+            "latexSource" TEXT,
+            "pdfPath" TEXT,
+            "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            "updatedAt" DATETIME NOT NULL
+        )
+    `).then(() => {
+        console.log('Database initialized in Vercel /tmp directory');
+    }).catch((err: any) => {
+        console.error('Failed to initialize db in Vercel:', err);
+    });
+}
+
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
