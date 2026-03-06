@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getResumeOptimizerPrompt } from '../prompts/resumeOptimizerPrompt';
+import { RESUME_OPTIMIZER_SYSTEM_PROMPT, getUserMessage } from '../prompts/resumeOptimizerPrompt';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -12,15 +12,15 @@ export const optimizeResume = async (parsedResumeJson: any, jobTitle: string, jo
         throw new Error('GEMINI_API_KEY is missing in the environment variables.');
     }
 
-    // Single Gemini call — keyword analysis is baked into the system prompt itself
     const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
+        systemInstruction: RESUME_OPTIMIZER_SYSTEM_PROMPT,
         generationConfig: {
-            temperature: 0.2,   // low = consistent, deterministic, fast
+            temperature: 0.2,
         }
     });
 
-    const prompt = getResumeOptimizerPrompt(parsedResumeJson, jobTitle, jobDescription);
+    const prompt = getUserMessage(parsedResumeJson, jobTitle, jobDescription);
 
     try {
         const result = await model.generateContent(prompt);

@@ -195,9 +195,15 @@ export default function WorkspacePage() {
                     Hey, {userFirstName}!
                 </h1>
 
-                {/* Top decorative gradient bar */}
-                <div className="w-full h-24 rounded-2xl bg-gradient-to-r from-[#4ade80] to-[#22c55e] mb-10 opacity-90 shadow-sm relative overflow-hidden">
-                    <div className="absolute inset-0 bg-white/20 w-1/3 blur-xl transform -skew-x-12 translate-x-full"></div>
+                {/* Status bar with Rectangle.png background */}
+                <div
+                    className="w-full h-24 rounded-2xl mb-10 shadow-sm relative overflow-hidden flex items-center px-6 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: "url('/Rectangle.png')" }}
+                >
+                    <div className="absolute inset-0 bg-black/20 rounded-2xl" aria-hidden />
+                    <p className="relative z-10 text-white font-medium text-[15px] md:text-[17px] tracking-tight drop-shadow-sm">
+                        Shape your resume to your dream job
+                    </p>
                 </div>
 
                 <div className="flex flex-col gap-6 w-full max-w-[500px]">

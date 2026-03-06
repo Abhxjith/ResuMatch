@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "motion/react";
+import { BlurredStagger } from "../ui/blurred-stagger-text";
 import { inter } from "../../lib/fonts";
 
 export default function Pricing() {
@@ -12,26 +14,57 @@ export default function Pricing() {
     ];
 
     return (
-        <section id="pricing" className={`w-full max-w-[1100px] mx-auto mt-32 mb-32 relative ${inter.className}`}>
+        <motion.section
+            id="pricing"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className={`w-full max-w-[1100px] mx-auto mt-32 mb-32 relative ${inter.className}`}
+        >
 
             {/* Header */}
-            <div className="w-full flex flex-col items-center mb-12 px-4">
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full flex flex-col items-center mb-12 px-4"
+            >
                 <h2 className="flex items-center gap-4 text-[40px] md:text-[46px] leading-tight font-medium tracking-tight text-[#111] mb-2">
-                    <div className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] -mt-2">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] -mt-2"
+                    >
                         <Image src="/bee.png" alt="bee icon" width={80} height={80} className="w-full h-full object-contain mix-blend-multiply" />
-                    </div>
-                    Plans to Boost your Job Search.
+                    </motion.div>
+                    <BlurredStagger text="Plans to Boost your Job Search." as="span" inView staggerChildren={0.028} letterDuration={0.5} className="inline" />
                 </h2>
-                <p className="text-[#666] text-[16px] md:text-[18px] font-medium tracking-[-0.02em]">
+                <motion.p
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                    className="text-[#666] text-[16px] md:text-[18px] font-medium tracking-[-0.02em]"
+                >
                     shape your resume to your dream job
-                </p>
-            </div>
+                </motion.p>
+            </motion.div>
 
             {/* Pricing Cards Container */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-4 md:px-0">
 
                 {/* Base Plan */}
-                <div className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+                    className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
+                >
                     <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">base plan.</h3>
                     <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
                     <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
@@ -50,10 +83,16 @@ export default function Pricing() {
                             ))}
                         </ul>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Favorite Plan */}
-                <div className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                    className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
+                >
                     <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">favorite plan.</h3>
                     <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
                     <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
@@ -72,10 +111,16 @@ export default function Pricing() {
                             ))}
                         </ul>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Super Plan */}
-                <div className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.45 }}
+                    className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
+                >
                     <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">super plan.</h3>
                     <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
                     <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
@@ -94,9 +139,9 @@ export default function Pricing() {
                             ))}
                         </ul>
                     </div>
-                </div>
+                </motion.div>
 
             </div>
-        </section>
+        </motion.section>
     );
 }

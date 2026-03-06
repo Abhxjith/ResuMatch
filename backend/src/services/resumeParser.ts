@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const pdf = require('pdf-parse');
+import { extractText, getDocumentProxy } from 'unpdf';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
@@ -9,8 +9,8 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 export const parseResume = async (fileBuffer: Buffer) => {
   // 1. Extract text from the PDF
-  const pdfData = await pdf(fileBuffer);
-  const rawText = pdfData.text;
+  const pdf = await getDocumentProxy(new Uint8Array(fileBuffer));
+  const { text: rawText } = await extractText(pdf, { mergePages: true });
 
   if (!rawText || rawText.trim() === '') {
     throw new Error('Failed to extract any text from the provided PDF document.');

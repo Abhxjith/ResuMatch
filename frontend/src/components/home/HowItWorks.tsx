@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { BlurredStagger } from "../ui/blurred-stagger-text";
 import { inter } from "../../lib/fonts";
 
 export default function HowItWorks() {
@@ -53,17 +55,36 @@ export default function HowItWorks() {
     }, []);
 
     return (
-        <section id="how-it-works" className={`w-full max-w-6xl mx-auto mt-40 mb-10 relative ${inter.className}`}>
+        <motion.section
+            id="how-it-works"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className={`w-full max-w-6xl mx-auto mt-40 mb-10 relative ${inter.className}`}
+        >
 
             {/* Heading */}
-            <div className="w-full flex justify-center mb-24">
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full flex justify-center mb-24"
+            >
                 <h2 className="flex items-center gap-4 text-[42px] leading-tight font-medium tracking-tight text-[#111]">
-                    <div className="w-[50px] h-[50px] -mt-1">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-[50px] h-[50px] -mt-1"
+                    >
                         <Image src="/bee.png" alt="bee icon" width={80} height={80} className="w-full h-full object-contain mix-blend-multiply" />
-                    </div>
-                    How does ResuMatch work?
+                    </motion.div>
+                    <BlurredStagger text="How does ResuMatch work?" as="span" inView staggerChildren={0.03} letterDuration={0.5} className="inline" />
                 </h2>
-            </div>
+            </motion.div>
 
             {/* Two Column Layout */}
             <div id="how-it-works-scroll" className="flex flex-col md:flex-row relative max-w-5xl mx-auto pb-10 md:pb-[15vh]">
@@ -71,9 +92,15 @@ export default function HowItWorks() {
                 {/* Left Side: Sticky Image & Indicator */}
                 <div className="w-full md:w-1/2 md:sticky top-[15vh] h-auto md:h-[60vh] flex items-center justify-center md:justify-end pr-0 md:pr-12 lg:pr-20 mb-16 md:mb-0 self-start">
 
-                    <div className="flex items-start gap-10">
+                    <motion.div
+                        initial={{ opacity: 0, x: -40 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: "-60px" }}
+                        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                        className="flex items-start gap-10"
+                    >
                         {/* Image Box */}
-                        <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-[3rem] border border-[#aaeac3] bg-white flex items-center justify-center transition-all duration-500 overflow-hidden shadow-sm">
+                        <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-[3rem] border border-[#aaeac3] bg-white flex items-center justify-center transition-all duration-700 overflow-hidden shadow-sm">
                             {steps.map((step, i) => (
                                 <div
                                     key={i}
@@ -92,16 +119,18 @@ export default function HowItWorks() {
                         {/* Progress Indicators */}
                         <div className="hidden md:flex flex-col items-center gap-2 pt-12">
                             {steps.map((_, i) => (
-                                <div
+                                <motion.div
                                     key={i}
-                                    className={`transition-all duration-300 ${activeStep === i
+                                    layout
+                                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                    className={`${activeStep === i
                                         ? "w-3 h-[5rem] rounded-full bg-[#3bda71] shadow-[0_0_15px_rgba(59,218,113,0.4)]"
                                         : "w-3 h-3 rounded-full bg-[#d0d0d0]"
                                         }`}
                                 />
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
 
                 </div>
 
@@ -110,23 +139,25 @@ export default function HowItWorks() {
                     {steps.map((step, i) => (
                         <div
                             key={i}
-                            className={`step-container w-full max-w-[400px] flex flex-col justify-center transition-all duration-500 ease-in-out ${activeStep === i 
+                            className={`step-container w-full max-w-[400px] flex flex-col justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${activeStep === i 
                                 ? "opacity-100 transform scale-100" 
                                 : "opacity-30 transform scale-[0.9] origin-left"
                                 }`}
                         >
-                            <div
-                                className={`w-14 h-14 rounded-full flex items-center justify-center text-[18px] font-medium mb-6 transition-all duration-500 ${activeStep === i ? "bg-[#cbf4d8] text-black shadow-sm" : "border-2 border-[#eaeaea] text-[#999]"
+                            <motion.div
+                                layout
+                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                className={`w-14 h-14 rounded-full flex items-center justify-center text-[18px] font-medium mb-6 ${activeStep === i ? "bg-[#cbf4d8] text-black shadow-sm" : "border-2 border-[#eaeaea] text-[#999]"
                                     }`}
                             >
                                 {step.id}
-                            </div>
-                            <h3 className={`text-[32px] md:text-[36px] font-medium mb-3 tracking-[-0.02em] transition-colors duration-500 ${activeStep === i ? "text-[#111]" : "text-[#777]"}`}>{step.title}</h3>
-                            <p className={`text-[16px] md:text-[18px] font-medium leading-[1.4] tracking-tight max-w-sm ${activeStep === i ? "text-[#666]" : "text-[#999]"}`}>{step.desc}</p>
+                            </motion.div>
+                            <h3 className={`text-[32px] md:text-[36px] font-medium mb-3 tracking-[-0.02em] transition-colors duration-700 ${activeStep === i ? "text-[#111]" : "text-[#777]"}`}>{step.title}</h3>
+                            <p className={`text-[16px] md:text-[18px] font-medium leading-[1.4] tracking-tight max-w-sm transition-colors duration-700 ${activeStep === i ? "text-[#666]" : "text-[#999]"}`}>{step.desc}</p>
                         </div>
                     ))}
                 </div>
             </div>
-        </section>
+        </motion.section>
     );
 }

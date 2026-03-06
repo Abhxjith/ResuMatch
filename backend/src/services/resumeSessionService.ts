@@ -18,6 +18,15 @@ export const updateResumeSession = async (
     });
 };
 
+export const createSession = async (data: {
+    id?: string;
+    optimizedJson: string;
+    latexSource: string;
+    pdfPath: string;
+}) => {
+    return await prisma.resumeSession.create({ data: data as any });
+};
+
 export const getSession = async (id: string) => {
     return await prisma.resumeSession.findUnique({
         where: { id }

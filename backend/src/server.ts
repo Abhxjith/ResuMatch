@@ -10,13 +10,13 @@ if (process.env.VERCEL && !process.env.DATABASE_URL) {
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import path from 'path';
 import fs from 'fs';
+import { randomUUID } from 'crypto';
 
 import { parseResume } from './services/resumeParser';
 import { optimizeResume } from './services/geminiOptimizer';
 import { generateLatex } from './services/latexGenerator';
-import { updateResumeSession, getSession } from './services/resumeSessionService';
+import { updateResumeSession, getSession, createSession } from './services/resumeSessionService';
 
 const { PrismaClient } = require('@prisma/client');
 const globalPrisma = new PrismaClient();
@@ -46,21 +46,33 @@ app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
+const log = (msg: string, ...args: any[]) => {
+    const ts = new Date().toISOString();
+    console.log(`[${ts}] ${msg}`, ...args);
+};
+
 // ---------- POST /generate-resume ----------
-// Full orchestration: upload PDF + job info → parse → Gemini optimize → (optional) LaTeX → save session
+// Async flow: parse → optimize → PDF → DB (uses pdf-lib, no Chrome)
 app.post('/generate-resume', upload.single('resume'), async (req, res) => {
+    const start = Date.now();
     try {
         const { jobTitle, jobDescription } = req.body;
         if (!req.file) return res.status(400).json({ success: false, message: 'No resume PDF uploaded.' });
         if (!jobDescription) return res.status(400).json({ success: false, message: 'Job description is required.' });
 
-        // 1. Parse the PDF into structured JSON (uses Gemini for text→JSON)
+        log('[generate-resume] START');
+
+        // 1. Parse (async)
+        const t1 = Date.now();
         const parsedJson = await parseResume(req.file.buffer);
+        log('[generate-resume] Parse done', Date.now() - t1, 'ms');
 
-        // 2. Optimize with Gemini in a single API call (keyword analysis + rewrite merged)
+        // 2. Optimize (async)
+        const t2 = Date.now();
         const optimizedJson = await optimizeResume(parsedJson, jobTitle || '', jobDescription);
+        log('[generate-resume] Optimize done', Date.now() - t2, 'ms');
 
-        // 3. Try to generate LaTeX and compile PDF — graceful degradation if pdflatex not installed
+        // 3. Generate PDF (async, pdf-lib, no Chrome)
         let latexSource: string | null = null;
         let pdfPath: string | null = null;
         try {
@@ -68,19 +80,24 @@ app.post('/generate-resume', upload.single('resume'), async (req, res) => {
             latexSource = latex.latexSource;
             pdfPath = latex.pdfPath;
         } catch (latexErr: any) {
-            console.warn('[generate-resume] LaTeX compilation skipped (pdflatex may not be installed):', latexErr.message);
+            log('[generate-resume] PDF generation failed:', (latexErr as Error).message);
         }
+        log('[generate-resume] PDF done', pdfPath ? 'ok' : 'skipped');
 
-        // 4. Persist session to DB so /download-resume/:id can serve the PDF
-        const { PrismaClient } = require('@prisma/client');
-        const prisma = new PrismaClient();
-        const session = await prisma.resumeSession.create({
-            data: {
-                optimizedJson: JSON.stringify(optimizedJson),
-                latexSource: latexSource || '',
-                pdfPath: pdfPath || '',
-            }
+        const sessionId = randomUUID();
+
+        // 4. Persist to DB (local storage for now; add cloud storage later)
+        const session = await createSession({
+            id: sessionId,
+            optimizedJson: JSON.stringify(optimizedJson),
+            latexSource: latexSource || '',
+            pdfPath: pdfPath || '',
         });
+
+        const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+        const downloadUrl = pdfPath ? `${baseUrl}/download-resume/${sessionId}` : null;
+
+        log('[generate-resume] DONE total', Date.now() - start, 'ms');
 
         return res.status(200).json({
             success: true,
@@ -89,12 +106,12 @@ app.post('/generate-resume', upload.single('resume'), async (req, res) => {
                 parsedJson,
                 optimizedJson,
                 latexSource,
-                pdfPath,
-                pdfAvailable: !!pdfPath
+                pdfPath: downloadUrl || pdfPath,
+                pdfAvailable: !!pdfPath,
             }
         });
     } catch (err: any) {
-        console.error('[generate-resume] Error:', err);
+        log('[generate-resume] ERROR', err.message, Date.now() - start, 'ms');
         return res.status(500).json({ success: false, message: err.message, stack: err.stack });
     }
 });
@@ -108,25 +125,19 @@ app.patch('/update-resume', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Missing id.' });
         }
 
-        let finalLatexSource = latexSource;
+        let finalLatexSource = latexSource || '';
         let pdfPath: string | null = null;
 
         const { compileLatexSource } = require('./services/latexGenerator');
 
         try {
-            if (latexSource) {
-                // If the user directly edited the LaTeX via the frontend
-                const latexResult = await compileLatexSource(latexSource);
-                finalLatexSource = latexResult.latexSource;
-                pdfPath = latexResult.pdfPath;
-            } else if (updatedResumeJson) {
-                // If they edited JSON
+            if (updatedResumeJson) {
                 const latexResult = await generateLatex(updatedResumeJson);
                 finalLatexSource = latexResult.latexSource;
                 pdfPath = latexResult.pdfPath;
             }
         } catch (latexErr: any) {
-            console.warn('[update-resume] LaTeX compilation skipped:', latexErr.message);
+            console.warn('[update-resume] PDF generation skipped:', (latexErr as Error).message);
         }
 
         await updateResumeSession(id, updatedResumeJson || {}, finalLatexSource, pdfPath);
@@ -144,8 +155,11 @@ app.patch('/update-resume', async (req, res) => {
 app.get('/download-resume/:id', async (req, res) => {
     try {
         const session = await getSession(req.params.id);
-        if (!session || !session.pdfPath) {
-            return res.status(404).json({ success: false, message: 'Session or PDF not found.' });
+        if (!session) {
+            return res.status(404).json({ success: false, message: 'Session not found.' });
+        }
+        if (!session.pdfPath) {
+            return res.status(404).json({ success: false, message: 'PDF not found.' });
         }
         if (!fs.existsSync(session.pdfPath)) {
             return res.status(404).json({ success: false, message: 'PDF file no longer exists on disk.' });
@@ -155,7 +169,7 @@ app.get('/download-resume/:id', async (req, res) => {
         fs.createReadStream(session.pdfPath).pipe(res);
     } catch (err: any) {
         console.error('[download-resume] Error:', err);
-        return res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ success: false, message: (err as Error).message });
     }
 });
 

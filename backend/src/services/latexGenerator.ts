@@ -1,210 +1,185 @@
+/**
+ * PDF generation using pdf-lib (no Chrome, fast, works on Vercel).
+ */
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import puppeteer from 'puppeteer';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-const e = (str: any): string => {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-};
+const MARGIN = 55;
+const PAGE_WIDTH = 612;
+const PAGE_HEIGHT = 792;
+const LINE_HEIGHT = 14;
+const SECTION_GAP = 10;
 
-// Normalise skills: { "Languages": [...] } OR string[]
 const normaliseSkills = (skills: any): Record<string, string[]> => {
     if (!skills) return {};
     if (Array.isArray(skills)) return { 'Technical Skills': skills };
     return skills as Record<string, string[]>;
 };
 
-// ─── HTML Template ────────────────────────────────────────────────────────────
-const buildResumeHtml = (data: any): string => {
-    const skillsObj = normaliseSkills(data.skills);
+function sanitize(str: any): string {
+    if (str == null) return '';
+    return String(str).slice(0, 500);
+}
 
-    const skillsRows = Object.entries(skillsObj)
-        .filter(([, items]) => (items as string[]).length > 0)
-        .map(([cat, items]) =>
-            `<tr><td class="skill-label">${e(cat)}</td><td>${(items as string[]).map(e).join(', ')}</td></tr>`
-        ).join('');
+export async function generateLatex(resumeData: any): Promise<{ latexSource: string; pdfPath: string }> {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+    const black = rgb(0.1, 0.1, 0.1);
 
-    const educationRows = (data.education || []).map((edu: any) => `
-        <div class="edu-row">
-            <span><strong>${e(edu.degree || edu.title)}</strong>${edu.school ? `, ${e(edu.school)}` : ''}</span>
-            <div style="text-align: right;">
-                <span class="date">${e(edu.endDate || edu.year || '')}</span>
-                ${edu.gpa ? `<br/><span style="font-size: 9.5pt; color: #444;">${e(edu.gpa)}</span>` : ''}
-            </div>
-        </div>`).join('');
+    let y = PAGE_HEIGHT - MARGIN;
 
-    const experienceBlocks = (data.experience || []).map((exp: any) => `
-        <div class="exp-block">
-            <div class="exp-header">
-                <strong>${e(exp.role)}</strong>
-                <span class="date">${e(exp.startDate)}${exp.startDate || exp.endDate ? ' – ' : ''}${e(exp.endDate || 'Present')}</span>
-            </div>
-            <div class="exp-sub">
-                <span>${e(exp.company)}</span>
-                <em>${e(exp.location)}</em>
-            </div>
-            <ul>${(exp.bullets || []).map((b: string) => `<li>${e(b)}</li>`).join('')}</ul>
-        </div>`).join('');
+    const drawText = (text: string, x: number, opts: { size?: number; bold?: boolean; maxWidth?: number } = {}) => {
+        const size = opts.size ?? 11;
+        const f = opts.bold ? fontBold : font;
+        const safe = sanitize(text);
+        if (!safe) return;
+        const lines = opts.maxWidth ? wrap(safe, opts.maxWidth, f, size) : [safe];
+        for (const line of lines) {
+            if (y < MARGIN + 20) break;
+            page.drawText(line, { x, y, size, font: f, color: black });
+            y -= size + 2;
+        }
+    };
 
-    const projectItems = (data.projects || []).map((proj: any) => `
-        <li><strong>${e(proj.name || proj.title)}.</strong> ${e(proj.description || (proj.bullets || []).join(' '))}</li>`
-    ).join('');
+    const wrap = (text: string, width: number, f: any, size: number): string[] => {
+        const words = text.split(' ');
+        const lines: string[] = [];
+        let line = '';
+        for (const w of words) {
+            const test = line ? `${line} ${w}` : w;
+            const ww = f.widthOfTextAtSize(test, size);
+            if (ww > width && line) {
+                lines.push(line);
+                line = w;
+            } else {
+                line = test;
+            }
+        }
+        if (line) lines.push(line);
+        return lines;
+    };
 
-    const extraItems = (data.extracurriculars || []).map((ex: string) => `<li>${e(ex)}</li>`).join('');
-    const leadershipItems = (data.leadership || []).map((l: string) => `<li>${e(l)}</li>`).join('');
+    const contentWidth = PAGE_WIDTH - 2 * MARGIN;
 
-    const section = (title: string, content: string) =>
-        content.trim() ? `<div class="section"><p class="section-title">${title}</p><hr/>${content}</div>` : '';
+    // Header
+    const name = sanitize(resumeData.name || 'Your Name').toUpperCase();
+    const nameW = fontBold.widthOfTextAtSize(name, 18);
+    page.drawText(name, { x: MARGIN + (contentWidth - nameW) / 2, y, size: 18, font: fontBold, color: black });
+    y -= 22;
 
-    // Contact line
-    const contact1 = [data.phone, data.location].filter(Boolean).map(e).join(' &nbsp;◇&nbsp; ');
-    const contact2Parts = [];
-    if (data.email) contact2Parts.push(`<a href="mailto:${e(data.email)}">${e(data.email)}</a>`);
-    if (data.linkedin) contact2Parts.push(`<a href="https://${e(data.linkedin)}">${e(data.linkedin)}</a>`);
-    if (data.website) contact2Parts.push(`<a href="https://${e(data.website)}">${e(data.website)}</a>`);
-    const contact2 = contact2Parts.join(' &nbsp;◇&nbsp; ');
+    const contactParts = [resumeData.phone, resumeData.location].filter(Boolean).map(sanitize);
+    if (contactParts.length) {
+        drawText(contactParts.join('  •  '), MARGIN + contentWidth / 2 - font.widthOfTextAtSize(contactParts.join('  •  '), 9) / 2, { size: 9 });
+    }
+    const contact2 = [resumeData.email, resumeData.linkedin, resumeData.website].filter(Boolean).map(sanitize);
+    if (contact2.length) {
+        const t = contact2.join('  •  ');
+        drawText(t, MARGIN + contentWidth / 2 - font.widthOfTextAtSize(t, 9) / 2, { size: 9 });
+    }
+    y -= SECTION_GAP;
 
-    return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 11pt;
-    color: #111;
-    padding: 0.55in 0.55in;
-    line-height: 1.25;
-  }
-  a { color: #1a56db; text-decoration: none; }
-
-  /* Header */
-  .name {
-    text-align: center;
-    font-size: 20pt;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 2px;
-  }
-  .contact { text-align: center; font-size: 9.5pt; margin-bottom: 1px; }
-  .contact-links { text-align: center; font-size: 9.5pt; color: #1a56db; margin-bottom: 8px; }
-
-  /* Sections */
-  .section { margin-bottom: 7px; }
-  .section-title {
-    font-size: 9.5pt;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  hr { border: none; border-top: 1px solid #111; margin: 1px 0 3px; }
-
-  /* Objective */
-  .objective { font-size: 10.5pt; }
-
-  /* Education */
-  .edu-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10.5pt;
-    margin-bottom: 1px;
-  }
-
-  /* Skills */
-  .skills-table { border-collapse: collapse; width: 100%; font-size: 10.5pt; }
-  .skill-label { font-weight: 700; white-space: nowrap; padding-right: 24px; vertical-align: top; }
-
-  /* Experience */
-  .exp-block { margin-bottom: 5px; }
-  .exp-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10.5pt;
-  }
-  .exp-sub {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10.5pt;
-    margin-bottom: 1px;
-  }
-  ul { padding-left: 14px; font-size: 10.5pt; }
-  li { margin-bottom: 0px; }
-
-  /* Projects */
-  .projects-list { padding-left: 14px; font-size: 10.5pt; }
-  .projects-list li { margin-bottom: 1px; }
-
-  .date { white-space: nowrap; font-size: 10.5pt; }
-</style>
-</head>
-<body>
-  <div class="name">${e(data.name || 'Your Name')}</div>
-  ${contact1 ? `<div class="contact">${contact1}</div>` : ''}
-  ${contact2 ? `<div class="contact-links">${contact2}</div>` : ''}
-
-  ${section('OBJECTIVE', `<p class="objective">${e(data.summary)}</p>`)}
-  ${section('EDUCATION', educationRows)}
-  ${skillsRows ? section('SKILLS', `<table class="skills-table"><tbody>${skillsRows}</tbody></table>`) : ''}
-  ${section('EXPERIENCE', experienceBlocks)}
-  ${projectItems ? section('PROJECTS', `<ul class="projects-list">${projectItems}</ul>`) : ''}
-  ${extraItems ? section('EXTRA-CURRICULAR ACTIVITIES', `<ul>${extraItems}</ul>`) : ''}
-  ${leadershipItems ? section('LEADERSHIP', `<ul>${leadershipItems}</ul>`) : ''}
-</body>
-</html>`;
-};
-
-// ─── Public API ───────────────────────────────────────────────────────────────
-export const generateLatex = async (resumeData: any): Promise<{ latexSource: string; pdfPath: string }> => {
-    const html = buildResumeHtml(resumeData);
-    const pdfPath = path.join(os.tmpdir(), `resume_${Date.now()}.pdf`);
-
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    try {
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-        await page.pdf({
-            path: pdfPath,
-            format: 'Letter',
-            printBackground: true,
-            margin: { top: '0in', bottom: '0in', left: '0in', right: '0in' },
+    const section = (title: string, fn: () => void) => {
+        y -= 4;
+        page.drawText(title, { x: MARGIN, y, size: 10, font: fontBold, color: black });
+        y -= 4;
+        page.drawLine({
+            start: { x: MARGIN, y },
+            end: { x: PAGE_WIDTH - MARGIN, y },
+            thickness: 0.5,
+            color: black
         });
-    } finally {
-        await browser.close();
+        y -= 8;
+        fn();
+        y -= SECTION_GAP;
+    };
+
+    if (resumeData.summary) {
+        section('OBJECTIVE', () => drawText(sanitize(resumeData.summary), MARGIN, { size: 10, maxWidth: contentWidth }));
     }
 
-    return { latexSource: html, pdfPath };
-};
-
-// Kept for backward-compat with /update-resume which calls compileLatexSource directly
-export const compileLatexSource = async (htmlSource: string): Promise<{ latexSource: string; pdfPath: string }> => {
-    const pdfPath = path.join(os.tmpdir(), `resume_${Date.now()}.pdf`);
-
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    try {
-        const page = await browser.newPage();
-        await page.setContent(htmlSource, { waitUntil: 'networkidle0' });
-        await page.pdf({
-            path: pdfPath,
-            format: 'Letter',
-            printBackground: true,
-            margin: { top: '0in', bottom: '0in', left: '0in', right: '0in' },
+    if ((resumeData.education || []).length) {
+        section('EDUCATION', () => {
+            for (const edu of resumeData.education) {
+                const deg = sanitize(edu.degree || edu.title);
+                const school = edu.school ? `, ${sanitize(edu.school)}` : '';
+                const dateStr = [edu.endDate, edu.gpa].filter(Boolean).join('  ');
+                page.drawText(`${deg}${school}`, { x: MARGIN, y, size: 10, font: fontBold, color: black });
+                if (dateStr) {
+                    const w = font.widthOfTextAtSize(dateStr, 10);
+                    page.drawText(dateStr, { x: PAGE_WIDTH - MARGIN - w, y, size: 10, font, color: black });
+                }
+                y -= 14;
+            }
         });
-    } finally {
-        await browser.close();
     }
-    return { latexSource: htmlSource, pdfPath };
-};
+
+    const skillsObj = normaliseSkills(resumeData.skills);
+    const skillsEntries = Object.entries(skillsObj).filter(([, v]) => (v as string[]).length > 0);
+    if (skillsEntries.length) {
+        section('SKILLS', () => {
+            for (const [cat, items] of skillsEntries) {
+                drawText(`${sanitize(cat)}: ${(items as string[]).map(sanitize).join(', ')}`, MARGIN, { size: 10, maxWidth: contentWidth });
+            }
+        });
+    }
+
+    if ((resumeData.experience || []).length) {
+        section('EXPERIENCE', () => {
+            for (const exp of resumeData.experience) {
+                const role = sanitize(exp.role);
+                const dates = `${exp.startDate || ''} – ${exp.endDate || 'Present'}`.trim();
+                const dateW = font.widthOfTextAtSize(dates, 10);
+                page.drawText(role, { x: MARGIN, y, size: 10, font: fontBold, color: black });
+                page.drawText(dates, { x: PAGE_WIDTH - MARGIN - dateW, y, size: 10, font, color: black });
+                y -= 12;
+                const sub = [exp.company, exp.location].filter(Boolean).map(sanitize).join(', ');
+                if (sub) drawText(sub, MARGIN, { size: 10 });
+                for (const b of exp.bullets || []) {
+                    drawText(`• ${sanitize(b)}`, MARGIN + 12, { size: 10, maxWidth: contentWidth - 12 });
+                }
+                y -= 4;
+            }
+        });
+    }
+
+    if ((resumeData.projects || []).length) {
+        section('PROJECTS', () => {
+            for (const p of resumeData.projects) {
+                const name = sanitize(p.name || p.title);
+                const desc = sanitize(p.description || (p.bullets || []).join(' '));
+                drawText(`${name}. ${desc}`, MARGIN, { size: 10, maxWidth: contentWidth });
+            }
+        });
+    }
+
+    if ((resumeData.extracurriculars || []).length) {
+        section('EXTRA-CURRICULAR ACTIVITIES', () => {
+            for (const ex of resumeData.extracurriculars) {
+                drawText(`• ${sanitize(ex)}`, MARGIN, { size: 10, maxWidth: contentWidth });
+            }
+        });
+    }
+
+    if ((resumeData.leadership || []).length) {
+        section('LEADERSHIP', () => {
+            for (const l of resumeData.leadership) {
+                drawText(`• ${sanitize(l)}`, MARGIN, { size: 10, maxWidth: contentWidth });
+            }
+        });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    const pdfPath = path.join(os.tmpdir(), `resume_${Date.now()}.pdf`);
+    fs.writeFileSync(pdfPath, pdfBytes);
+
+    // Store JSON as latexSource for DB; frontend uses optimizedJson for display
+    return { latexSource: JSON.stringify(resumeData), pdfPath };
+}
+
+export async function compileLatexSource(_unused: string): Promise<{ latexSource: string; pdfPath: string }> {
+    throw new Error('Use generateLatex with resume JSON instead');
+}

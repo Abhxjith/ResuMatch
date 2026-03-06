@@ -47,16 +47,14 @@ export default function Navbar() {
                         <button onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-black transition-colors">contact</button>
                     </div>
                     <div className="flex items-center gap-6">
-                        {!user && (
-                            <Link href="/auth" className="hidden md:block font-medium text-[15px] text-[#666] hover:text-[#111] transition-colors">
-                                login
-                            </Link>
-                        )}
+                        <Link href="/auth" className="hidden md:block font-medium text-[15px] text-[#666] hover:text-[#111] transition-colors">
+                            login
+                        </Link>
                         <Link
                             href={user ? "/workspace" : "/auth"}
                             className={`bg-brand hover:bg-brand-hover text-black rounded-full font-medium text-[16px] leading-normal tracking-[-0.07em] transition-all duration-300 ${isScrolled ? "px-6 py-2 shadow-sm" : "px-7 py-2.5"}`}
                         >
-                            {user ? "go to workspace" : "try for free"}
+                            try for free
                         </Link>
                     </div>
                 </nav>
