@@ -12,13 +12,13 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className={`w-full max-w-[1400px] mx-auto px-4 pb-4 ${inter.className}`}
+            className={`w-full max-w-[1400px] mx-auto px-3 sm:px-4 pb-4 ${inter.className}`}
         >
-            <div className="w-full rounded-[3rem] bg-black text-white px-8 md:px-16 pt-16 pb-12 flex flex-col justify-between overflow-hidden relative">
+                <div className="w-full rounded-[2rem] sm:rounded-[3rem] bg-black text-white px-6 sm:px-8 md:px-16 pt-12 sm:pt-16 pb-10 sm:pb-12 flex flex-col justify-between overflow-hidden relative">
 
                 {/* Top Links Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full mb-32 md:mb-40 gap-8 z-10">
-                    <div className="text-[28px] md:text-[32px] font-medium tracking-tight">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full mb-20 sm:mb-28 md:mb-40 gap-6 sm:gap-8 z-10">
+                    <div className="text-[22px] sm:text-[26px] md:text-[32px] font-medium tracking-tight">
                         <BlurredStagger text="match ur resume." as="span" inView staggerChildren={0.04} letterDuration={0.5} className="inline" />
                     </div>
 

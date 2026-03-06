@@ -20,7 +20,7 @@ export default function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className={`w-full max-w-[1100px] mx-auto mt-32 mb-32 relative ${inter.className}`}
+            className={`w-full max-w-[1100px] mx-auto mt-16 sm:mt-24 md:mt-32 mb-16 sm:mb-24 md:mb-32 relative ${inter.className}`}
         >
 
             {/* Header */}
@@ -31,7 +31,7 @@ export default function Pricing() {
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full flex flex-col items-center mb-12 px-4"
             >
-                <h2 className="flex items-center gap-4 text-[40px] md:text-[46px] leading-tight font-medium tracking-tight text-[#111] mb-2">
+                <h2 className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[28px] sm:text-[36px] md:text-[46px] leading-tight font-medium tracking-tight text-[#111] mb-2 text-center">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -55,7 +55,7 @@ export default function Pricing() {
             </motion.div>
 
             {/* Pricing Cards Container */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-4 md:px-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full px-3 sm:px-4 md:px-0">
 
                 {/* Base Plan */}
                 <motion.div

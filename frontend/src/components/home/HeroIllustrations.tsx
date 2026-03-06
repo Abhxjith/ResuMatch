@@ -28,7 +28,7 @@ export default function HeroIllustrations() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5, type: "spring", bounce: 0.25, delay: 0.3 }}
-                className="absolute top-[14rem] md:top-[16rem] left-[-2%] md:left-[2%] w-56 md:w-[380px] mix-blend-multiply"
+                className="absolute top-[12rem] sm:top-[14rem] md:top-[16rem] left-[-4%] sm:left-[-2%] md:left-[2%] w-40 sm:w-56 md:w-[380px] mix-blend-multiply opacity-80 sm:opacity-100"
             >
                 <motion.div
                     animate={{ y: [0, -4, 0] }}
@@ -44,7 +44,7 @@ export default function HeroIllustrations() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5, type: "spring", bounce: 0.25, delay: 0.4 }}
-                className="absolute top-[10rem] md:top-[12rem] right-[-5%] md:right-[2%] w-[250px] md:w-[350px] mix-blend-multiply"
+                className="absolute top-[9rem] sm:top-[10rem] md:top-[12rem] right-[-8%] sm:right-[-5%] md:right-[2%] w-[180px] sm:w-[250px] md:w-[350px] mix-blend-multiply opacity-80 sm:opacity-100"
             >
                 <motion.div
                     animate={{ y: [0, -5, 0] }}

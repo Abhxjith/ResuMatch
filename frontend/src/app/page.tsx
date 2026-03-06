@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className={`min-h-screen flex flex-col items-center w-full overflow-x-clip ${inter.className}`}>
       <Navbar />
-      <main className="flex-1 flex flex-col items-center w-full pt-32 md:pt-44 relative max-w-7xl mx-auto px-6">
+      <main className="flex-1 flex flex-col items-center w-full pt-24 sm:pt-32 md:pt-44 relative max-w-7xl mx-auto px-4 sm:px-6">
         <HeroIllustrations />
         <Hero />
         <ProductPreview />

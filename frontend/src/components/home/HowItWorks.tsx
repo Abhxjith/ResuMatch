@@ -61,7 +61,7 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className={`w-full max-w-6xl mx-auto mt-40 mb-10 relative ${inter.className}`}
+            className={`w-full max-w-6xl mx-auto mt-20 sm:mt-28 md:mt-40 mb-8 md:mb-10 relative px-2 sm:px-4 ${inter.className}`}
         >
 
             {/* Heading */}
@@ -72,7 +72,7 @@ export default function HowItWorks() {
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full flex justify-center mb-24"
             >
-                <h2 className="flex items-center gap-4 text-[42px] leading-tight font-medium tracking-tight text-[#111]">
+                <h2 className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[28px] sm:text-[36px] md:text-[42px] leading-tight font-medium tracking-tight text-[#111] text-center">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -100,7 +100,7 @@ export default function HowItWorks() {
                         className="flex items-start gap-10"
                     >
                         {/* Image Box */}
-                        <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-[3rem] border border-[#aaeac3] bg-white flex items-center justify-center transition-all duration-700 overflow-hidden shadow-sm">
+                        <div className="relative w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] rounded-[2rem] sm:rounded-[3rem] border border-[#aaeac3] bg-white flex items-center justify-center transition-all duration-700 overflow-hidden shadow-sm mx-auto">
                             {steps.map((step, i) => (
                                 <div
                                     key={i}
@@ -109,9 +109,9 @@ export default function HowItWorks() {
                                     <Image
                                         src={step.img}
                                         alt={step.title}
-                                        className="object-contain p-12 mix-blend-multiply"
+                                        className="object-contain p-6 sm:p-10 md:p-12 mix-blend-multiply"
                                         fill
-                                        sizes="(max-width: 768px) 300px, 400px"
+                                        sizes="(max-width: 640px) 240px, (max-width: 768px) 300px, 400px"
                                     />
                                 </div>
                             ))}
@@ -136,7 +136,7 @@ export default function HowItWorks() {
                 </div>
 
                 {/* Right Side: Scrollable Steps structured tightly */}
-                <div className="w-full md:w-1/2 pl-4 md:pl-10 lg:pl-12 flex flex-col justify-center gap-16 md:gap-[9rem] pb-[20vh] md:pb-[30vh]">
+                <div className="w-full md:w-1/2 pl-2 sm:pl-4 md:pl-10 lg:pl-12 flex flex-col justify-center gap-12 sm:gap-16 md:gap-[9rem] pb-[12vh] sm:pb-[20vh] md:pb-[30vh]">
                     {steps.map((step, i) => (
                         <div
                             key={i}
@@ -153,8 +153,8 @@ export default function HowItWorks() {
                             >
                                 {step.id}
                             </motion.div>
-                            <h3 className={`text-[32px] md:text-[36px] font-medium mb-3 tracking-[-0.02em] transition-colors duration-700 ${activeStep === i ? "text-[#111]" : "text-[#777]"}`}>{step.title}</h3>
-                            <p className={`text-[16px] md:text-[18px] font-medium leading-[1.4] tracking-tight max-w-sm transition-colors duration-700 ${activeStep === i ? "text-[#666]" : "text-[#999]"}`}>{step.desc}</p>
+                            <h3 className={`text-[24px] sm:text-[28px] md:text-[36px] font-medium mb-2 md:mb-3 tracking-[-0.02em] transition-colors duration-700 ${activeStep === i ? "text-[#111]" : "text-[#777]"}`}>{step.title}</h3>
+                            <p className={`text-[14px] sm:text-[16px] md:text-[18px] font-medium leading-[1.4] tracking-tight max-w-sm transition-colors duration-700 ${activeStep === i ? "text-[#666]" : "text-[#999]"}`}>{step.desc}</p>
                         </div>
                     ))}
                 </div>

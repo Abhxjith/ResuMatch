@@ -17,7 +17,7 @@ export default function Hero() {
         return () => unsubscribe();
     }, []);
     return (
-        <div className="flex flex-col items-center text-center z-10 relative mt-4 px-8 md:px-24 lg:px-32 max-w-4xl mx-auto">
+        <div className="flex flex-col items-center text-center z-10 relative mt-2 sm:mt-4 px-4 sm:px-8 md:px-24 lg:px-32 max-w-4xl mx-auto">
 
             <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -31,7 +31,7 @@ export default function Hero() {
 
             <BlurredStagger
                 text="Quit Tweaking"
-                className={`text-[80px] md:text-[130px] leading-[0.85] tracking-[-0.07em] mb-8 ${instrumentSerif.className}`}
+                className={`text-[56px] sm:text-[72px] md:text-[130px] leading-[0.85] tracking-[-0.07em] mb-6 md:mb-8 ${instrumentSerif.className}`}
                 staggerChildren={0.04}
                 letterDuration={0.65}
             />
@@ -52,7 +52,7 @@ export default function Hero() {
             >
                 <Link
                     href={user ? "/workspace" : "/auth"}
-                    className="bg-brand hover:bg-brand-hover text-black px-16 py-2.5 rounded-full text-[16px] font-medium leading-normal tracking-[-0.07em] transition-all duration-500 shadow-[0_0_40px_rgba(59,218,113,0.3)] hover:shadow-[0_0_60px_rgba(59,218,113,0.4)] hover:-translate-y-0.5 block w-fit mx-auto"
+                    className="bg-brand hover:bg-brand-hover text-black px-10 sm:px-16 py-2.5 rounded-full text-[15px] sm:text-[16px] font-medium leading-normal tracking-[-0.07em] transition-all duration-500 shadow-[0_0_40px_rgba(59,218,113,0.3)] hover:shadow-[0_0_60px_rgba(59,218,113,0.4)] hover:-translate-y-0.5 block w-fit mx-auto"
                 >
                     try for free
                 </Link>
