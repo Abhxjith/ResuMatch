@@ -6,7 +6,7 @@ import { inter } from "../../../../src/lib/fonts";
 import { generateResume, updateResume, getDownloadUrl, OptimizedResume } from "../../../../src/lib/api";
 import KineticDotsLoader from "@/components/ui/kinetic-dots-loader";
 
-const fadeIn = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } };
+const fadeIn = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } };
 
 const PROCESSING_STEPS = ["Parsing PDF…", "Optimizing with AI…", "Generating PDF…", "Almost done…"] as const;
 
