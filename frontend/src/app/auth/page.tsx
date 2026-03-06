@@ -102,7 +102,7 @@ export default function AuthPage() {
                 {/* Minimal Logo Top Left (from reference) */}
                 <Link href="/" className="absolute top-8 left-8 md:top-12 md:left-12">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                        <Image src="/target.png" alt="Logo" width={32} height={32} className="w-full h-auto object-cover" />
+                        <Image src="/target.png" alt="Logo" width={32} height={32} className="w-full h-auto object-cover" loading="eager" />
                     </div>
                 </Link>
 
@@ -225,6 +225,7 @@ export default function AuthPage() {
                         src="/blur.png"
                         alt="Auth background"
                         fill
+                        sizes="50vw"
                         className="object-cover"
                         priority
                     />

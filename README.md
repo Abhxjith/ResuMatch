@@ -21,3 +21,10 @@ cd frontend && pnpm install && pnpm dev
 ```
 
 Add `.env` with `GEMINI_API_KEY` and Prisma DB URL in `backend/`.
+
+## Vercel deployment
+
+1. Deploy the backend (Railway, Render, etc.) and note its URL.
+2. In Vercel → Project → Settings → Environment Variables:
+   - `NEXT_PUBLIC_BACKEND_URL` = your backend URL (e.g. `https://your-backend.up.railway.app`)
+3. The frontend proxies API calls via `/api/backend/*` to avoid `ERR_BLOCKED_BY_CLIENT` (cross-origin blocking).

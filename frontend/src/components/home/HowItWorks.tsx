@@ -111,6 +111,7 @@ export default function HowItWorks() {
                                         alt={step.title}
                                         className="object-contain p-12 mix-blend-multiply"
                                         fill
+                                        sizes="(max-width: 768px) 300px, 400px"
                                     />
                                 </div>
                             ))}

@@ -36,7 +36,7 @@ export default function Navbar() {
                 <nav className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 ease-in-out ${isScrolled ? "w-9 h-9" : "w-12 h-12"}`}>
-                            <Image src="/target.png" alt="ResuMatch Logo" width={48} height={48} className="w-full h-auto object-cover" />
+                            <Image src="/target.png" alt="ResuMatch Logo" width={48} height={48} className="w-full h-auto object-cover" priority loading="eager" />
                         </div>
                     </div>
 

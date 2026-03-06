@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+// Use same-origin proxy in browser to avoid ERR_BLOCKED_BY_CLIENT (ad blockers, CORS) on Vercel
+const BASE_URL =
+    typeof window !== "undefined" ? "/api/backend" : (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001");
 
 export interface OptimizedResume {
     name?: string;
@@ -73,7 +75,8 @@ export async function updateResume(
  * Step 3: Download the compiled PDF for a given session.
  */
 export function getDownloadUrl(id: string): string {
-    return `${BASE_URL}/download-resume/${id}`;
+    const base = typeof window !== "undefined" ? "/api/backend" : (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001");
+    return `${base}/download-resume/${id}`;
 }
 
 /**

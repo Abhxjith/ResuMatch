@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { inter } from "../../../src/lib/fonts";
+import { auth } from "../../../src/lib/firebase";
 
 export default function WorkspaceLayout({
     children,
@@ -13,12 +14,32 @@ export default function WorkspaceLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
+    const [authChecked, setAuthChecked] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            setAuthChecked(true);
+            if (!user) {
+                router.replace("/auth");
+            }
+        });
+        return () => unsubscribe();
+    }, [router]);
 
     const navItems = [
         { name: "Workspace", path: "/workspace", icon: HomeIcon },
         { name: "History", path: "/history", icon: HistoryIcon },
     ];
+
+    if (!authChecked) {
+        return (
+            <div className={`flex h-screen w-full bg-[#f4f4f4] items-center justify-center ${inter.className}`}>
+                <div className="w-8 h-8 border-2 border-[#3bda71]/30 border-t-[#3bda71] rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className={`flex h-screen w-full bg-[#f4f4f4] overflow-hidden ${inter.className}`}>
@@ -39,8 +60,8 @@ export default function WorkspaceLayout({
                             className="flex items-center gap-3 mb-10 px-3 hover:opacity-80 transition-opacity"
                             style={{ justifyContent: collapsed ? 'center' : 'flex-start' }}
                         >
-                            <div className="w-8 h-8 rounded-full bg-[#3bda71] flex items-center justify-center overflow-hidden flex-shrink-0">
-                                <Image src="/target.png" alt="ResuMatch" width={32} height={32} className="w-full h-auto object-cover mix-blend-multiply opacity-80" />
+                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <Image src="/target.png" alt="ResuMatch" width={32} height={32} className="w-full h-auto object-cover opacity-90" loading="eager" />
                             </div>
                             {!collapsed && <span className="font-semibold text-[17px] tracking-tight whitespace-nowrap">ResuMatch</span>}
                         </Link>

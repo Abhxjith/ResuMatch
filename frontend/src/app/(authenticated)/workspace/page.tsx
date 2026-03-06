@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { motion } from "motion/react";
 import { inter } from "../../../../src/lib/fonts";
 import { generateResume, updateResume, getDownloadUrl, OptimizedResume } from "../../../../src/lib/api";
 import KineticDotsLoader from "@/components/ui/kinetic-dots-loader";
+
+const fadeIn = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } };
+
+const PROCESSING_STEPS = ["Parsing PDF…", "Optimizing with AI…", "Generating PDF…", "Almost done…"] as const;
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Types
@@ -18,6 +23,7 @@ export default function WorkspacePage() {
     const [jobDescription, setJobDescription] = useState("");
 
     const [stage, setStage] = useState<Stage>("idle");
+    const [processingStep, setProcessingStep] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -63,10 +69,21 @@ export default function WorkspacePage() {
         }
     };
 
+    // Cycle through steps while processing (approx every 2.5s)
+    useEffect(() => {
+        if (stage !== "processing") return;
+        setProcessingStep(0);
+        const interval = setInterval(() => {
+            setProcessingStep((prev) => (prev + 1) % PROCESSING_STEPS.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, [stage]);
+
     // ── Main CTA: upload + optimize ─────────────────────────────────────────
     const handleTailorResume = async () => {
         if (!resumeFile || !jobDescription) return;
         setStage("processing");
+        setProcessingStep(0);
         setError(null);
         try {
             const result = await generateResume(resumeFile, "", jobDescription);
@@ -191,12 +208,15 @@ export default function WorkspacePage() {
 
             {/* ─── Left Column: Input Form ─────────────────────────────────── */}
             <div className="h-full flex flex-col overflow-y-auto px-10 py-10" style={{ width: `${leftPct}%`, flexShrink: 0 }}>
-                <h1 className="text-[28px] font-medium text-[#111] mb-8 tracking-tight">
+                <motion.h1 {...fadeIn} className="text-[28px] font-medium text-[#111] mb-8 tracking-tight">
                     Hey, {userFirstName}!
-                </h1>
+                </motion.h1>
 
                 {/* Status bar with Rectangle.png background */}
-                <div
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                     className="w-full h-24 rounded-2xl mb-10 shadow-sm relative overflow-hidden flex items-center px-6 bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: "url('/Rectangle.png')" }}
                 >
@@ -204,12 +224,16 @@ export default function WorkspacePage() {
                     <p className="relative z-10 text-white font-medium text-[15px] md:text-[17px] tracking-tight drop-shadow-sm">
                         Shape your resume to your dream job
                     </p>
-                </div>
+                </motion.div>
 
                 <div className="flex flex-col gap-6 w-full max-w-[500px]">
-
                     {/* Upload Card */}
-                    <div className="w-full relative border-2 border-dashed border-[#e5e5e5] rounded-3xl p-8 hover:border-[#3bda71] hover:bg-[#3bda71]/5 transition-all group bg-white">
+                    <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-full relative border-2 border-dashed border-[#e5e5e5] rounded-3xl p-8 hover:border-[#bbb] hover:bg-[#fafafa] transition-all group bg-white"
+                    >
                         <input
                             type="file"
                             accept=".pdf"
@@ -217,7 +241,7 @@ export default function WorkspacePage() {
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         />
                         <div className="flex flex-col items-center justify-center text-center">
-                            <svg className="w-10 h-10 text-[#666] group-hover:text-[#3bda71] transition-colors mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                            <svg className="w-10 h-10 text-[#666] group-hover:text-[#444] transition-colors mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                             </svg>
                             <span className="text-[17px] font-medium text-[#111] mb-1">
@@ -225,12 +249,15 @@ export default function WorkspacePage() {
                             </span>
                             <span className="text-[13px] text-[#888]">PDF only • We don&apos;t store your files.</span>
                         </div>
-                    </div>
-
-
+                    </motion.div>
 
                     {/* Job Description */}
-                    <div className="relative">
+                    <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        className="relative"
+                    >
                         <div className="absolute left-4 top-4 text-[#888]">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -240,9 +267,9 @@ export default function WorkspacePage() {
                             placeholder="Paste the job description here..."
                             value={jobDescription}
                             onChange={(e) => setJobDescription(e.target.value)}
-                            className="w-full min-h-[160px] bg-[#f1f1f1] border border-transparent focus:bg-white focus:border-[#3bda71] focus:ring-1 focus:ring-[#3bda71] rounded-xl py-4 pl-12 pr-4 text-[15px] text-[#111] placeholder:text-[#888] outline-none transition-all resize-y"
+                            className="w-full min-h-[160px] bg-[#f1f1f1] border border-transparent focus:bg-white focus:border-[#666] focus:ring-1 focus:ring-[#999] rounded-xl py-4 pl-12 pr-4 text-[15px] text-[#111] placeholder:text-[#888] outline-none transition-all resize-y"
                         />
-                    </div>
+                    </motion.div>
 
                     {/* Error */}
                     {stage === "error" && error && (
@@ -252,7 +279,10 @@ export default function WorkspacePage() {
                     )}
 
                     {/* Primary Button */}
-                    <button
+                    <motion.button
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                         onClick={handleTailorResume}
                         disabled={!resumeFile || !jobDescription || stage === "processing"}
                         className="w-full bg-[#3bda71] hover:bg-[#32c462] text-white py-4 rounded-xl text-[16px] font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
@@ -267,20 +297,20 @@ export default function WorkspacePage() {
                                 Tailor my Resume
                             </>
                         )}
-                    </button>
+                    </motion.button>
 
                     {/* Saving edits button — appears when done */}
                     {stage === "done" && (
                         <button
                             onClick={handleSaveEdits}
                             disabled={isSaving}
-                            className="w-full bg-white border border-[#e0e0e0] hover:border-[#3bda71] text-[#111] py-4 rounded-xl text-[16px] font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                            className="w-full bg-white border border-[#e0e0e0] hover:border-[#666] text-[#111] py-4 rounded-xl text-[16px] font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-40"
                         >
                             {isSaving ? (
                                 <div className="w-4 h-4 border-2 border-[#999]/30 border-t-[#999] rounded-full animate-spin" />
                             ) : (
                                 <>
-                                    <svg className="w-5 h-5 text-[#3bda71]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                    <svg className="w-5 h-5 text-[#444]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                                     </svg>
                                     Save edits & Regenerate PDF
@@ -298,24 +328,29 @@ export default function WorkspacePage() {
                 style={{ background: 'transparent' }}
             >
                 {/* Visual handle strip */}
-                <div className="w-[3px] h-16 rounded-full bg-[#d0d0d0] group-hover:bg-[#3bda71] group-active:bg-[#3bda71] transition-colors opacity-70 group-hover:opacity-100" />
+                <div className="w-[3px] h-16 rounded-full bg-[#d0d0d0] group-hover:bg-[#666] group-active:bg-[#555] transition-colors opacity-70 group-hover:opacity-100" />
             </div>
 
             {/* ─── Right Column: Resume Paper ───────────────────────────── */}
             <div className="flex-1 h-full min-w-0 bg-[#e8e8e8] flex flex-col items-center overflow-y-auto py-6 px-4">
 
                 {stage === "done" && optimized ? (
-                    <>
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-full flex flex-col items-center"
+                    >
                         {/* Toolbar above paper */}
                         <div className="w-full max-w-[760px] flex items-center justify-between mb-3">
                             <span className="text-[11px] text-[#999] font-medium">Click any field to edit</span>
                             <button
                                 onClick={handleDownload}
                                 disabled={isDownloading || !sessionId}
-                                className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white text-[#27a856] text-[12px] font-medium hover:bg-[#f0fdf4] border border-[#d1fae5] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white text-[#333] text-[12px] font-medium hover:bg-[#f5f5f5] border border-[#e0e0e0] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isDownloading ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-[#27a856]/30 border-t-[#27a856] rounded-full animate-spin" />
+                                    <div className="w-3.5 h-3.5 border-2 border-[#999]/30 border-t-[#444] rounded-full animate-spin" />
                                 ) : (
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -333,7 +368,7 @@ export default function WorkspacePage() {
                                 <input
                                     value={optimized.name || ""}
                                     onChange={(e) => updateField('name', e.target.value)}
-                                    className="text-center w-full text-[20px] font-black uppercase tracking-wide bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none transition-all"
+                                    className="text-center w-full text-[20px] font-black uppercase tracking-wide bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none transition-all"
                                     placeholder="FIRSTNAME LASTNAME"
                                 />
                             </div>
@@ -343,14 +378,14 @@ export default function WorkspacePage() {
                                 <input
                                     value={optimized.phone || ""}
                                     onChange={(e) => updateField('phone', e.target.value)}
-                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-36 transition-all"
+                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-36 transition-all"
                                     placeholder="+1(123) 456-7890"
                                 />
                                 <span className="text-[#888]">◇</span>
                                 <input
                                     value={optimized.location || ""}
                                     onChange={(e) => updateField('location', e.target.value)}
-                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-40 transition-all"
+                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-40 transition-all"
                                     placeholder="San Francisco, CA"
                                 />
                             </div>
@@ -360,21 +395,21 @@ export default function WorkspacePage() {
                                 <input
                                     value={optimized.email || ""}
                                     onChange={(e) => updateField('email', e.target.value)}
-                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-44 text-[#2563eb] transition-all"
+                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-44 text-[#2563eb] transition-all"
                                     placeholder="contact@example.com"
                                 />
                                 <span className="text-[#888]">◇</span>
                                 <input
                                     value={optimized.linkedin || ""}
                                     onChange={(e) => updateField('linkedin', e.target.value)}
-                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-44 text-[#2563eb] transition-all"
+                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-44 text-[#2563eb] transition-all"
                                     placeholder="linkedin.com/in/you"
                                 />
                                 <span className="text-[#888]">◇</span>
                                 <input
                                     value={optimized.website || ""}
                                     onChange={(e) => updateField('website', e.target.value)}
-                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-32 text-[#2563eb] transition-all"
+                                    className="text-center bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-32 text-[#2563eb] transition-all"
                                     placeholder="www.you.com"
                                 />
                             </div>
@@ -386,7 +421,7 @@ export default function WorkspacePage() {
                                 <textarea
                                     value={optimized.summary || ""}
                                     onChange={(e) => updateField('summary', e.target.value)}
-                                    className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#3bda71] focus:bg-[#fafff9] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
+                                    className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                     rows={2}
                                     onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
                                 />
@@ -403,7 +438,7 @@ export default function WorkspacePage() {
                                                 <input
                                                     value={edu.degree || ""}
                                                     onChange={(e) => updateEducation(i, 'degree', e.target.value)}
-                                                    className="font-bold text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none flex-shrink-0 transition-all"
+                                                    className="font-bold text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none flex-shrink-0 transition-all"
                                                     style={{ width: `${Math.max(140, (edu.degree || "").length * 8)}px` }}
                                                     placeholder="Degree"
                                                 />
@@ -411,7 +446,7 @@ export default function WorkspacePage() {
                                                 <input
                                                     value={edu.school || ""}
                                                     onChange={(e) => updateEducation(i, 'school', e.target.value)}
-                                                    className="text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none flex-1 min-w-[80px] transition-all"
+                                                    className="text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none flex-1 min-w-[80px] transition-all"
                                                     placeholder="University"
                                                 />
                                             </div>
@@ -419,14 +454,14 @@ export default function WorkspacePage() {
                                                 <input
                                                     value={edu.endDate || edu.year || ""}
                                                     onChange={(e) => updateEducation(i, 'endDate', e.target.value)}
-                                                    className="text-[12.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-28 transition-all"
+                                                    className="text-[12.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-28 transition-all"
                                                     placeholder="Year"
                                                 />
                                                 {edu.gpa && (
                                                     <input
                                                         value={edu.gpa || ""}
                                                         onChange={(e) => updateEducation(i, 'gpa', e.target.value)}
-                                                        className="text-[11.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-28 transition-all text-[#444]"
+                                                        className="text-[11.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-28 transition-all text-[#444]"
                                                         placeholder="GPA"
                                                     />
                                                 )}
@@ -453,7 +488,7 @@ export default function WorkspacePage() {
                                                                     <input
                                                                         value={s}
                                                                         onChange={(e) => updateSkillInCategory(cat, i, e.target.value)}
-                                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none transition-all text-[12px]"
+                                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none transition-all text-[12px]"
                                                                         style={{ width: `${Math.max(30, s.length * 7.5)}px` }}
                                                                     />
                                                                     {i < (items as string[]).length - 1 && <span className="mr-1 text-[#555]">,</span>}
@@ -480,21 +515,21 @@ export default function WorkspacePage() {
                                                 <input
                                                     value={exp.role || ""}
                                                     onChange={(e) => updateExperience(i, 'role', e.target.value)}
-                                                    className="font-bold text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none flex-1 transition-all"
+                                                    className="font-bold text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none flex-1 transition-all"
                                                     placeholder="Role Name"
                                                 />
                                                 <div className="flex items-center gap-1 flex-shrink-0 text-[12.5px] text-[#333]">
                                                     <input
                                                         value={exp.startDate || ""}
                                                         onChange={(e) => updateExperience(i, 'startDate', e.target.value)}
-                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-20 text-right transition-all"
+                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-20 text-right transition-all"
                                                         placeholder="Jan 2022"
                                                     />
                                                     <span>-</span>
                                                     <input
                                                         value={exp.endDate || ""}
                                                         onChange={(e) => updateExperience(i, 'endDate', e.target.value)}
-                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-20 transition-all"
+                                                        className="bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-20 transition-all"
                                                         placeholder="Jan 2024"
                                                     />
                                                 </div>
@@ -504,13 +539,13 @@ export default function WorkspacePage() {
                                                 <input
                                                     value={exp.company || ""}
                                                     onChange={(e) => updateExperience(i, 'company', e.target.value)}
-                                                    className="text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none flex-1 transition-all"
+                                                    className="text-[12.5px] bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none flex-1 transition-all"
                                                     placeholder="Company Name"
                                                 />
                                                 <input
                                                     value={exp.location || ""}
                                                     onChange={(e) => updateExperience(i, 'location', e.target.value)}
-                                                    className="italic text-[12.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none w-36 flex-shrink-0 transition-all"
+                                                    className="italic text-[12.5px] text-right bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none w-36 flex-shrink-0 transition-all"
                                                     placeholder="City, ST"
                                                 />
                                             </div>
@@ -522,7 +557,7 @@ export default function WorkspacePage() {
                                                         <textarea
                                                             value={b}
                                                             onChange={(e) => updateExperienceBullet(i, j, e.target.value)}
-                                                            className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#3bda71] focus:bg-[#fafff9] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
+                                                            className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                                             rows={1}
                                                             onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
                                                         />
@@ -550,7 +585,7 @@ export default function WorkspacePage() {
                                                         newProj[i] = { ...newProj[i], name: e.target.value };
                                                         updateField('projects', newProj);
                                                     }}
-                                                    className="font-bold bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#3bda71] outline-none transition-all"
+                                                    className="font-bold bg-transparent border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none transition-all"
                                                     style={{ width: `${Math.max(80, ((proj.name || proj.title || "").length + 2) * 8)}px` }}
                                                     placeholder="Project Title"
                                                 />
@@ -562,7 +597,7 @@ export default function WorkspacePage() {
                                                         newProj[i] = { ...newProj[i], description: e.target.value };
                                                         updateField('projects', newProj);
                                                     }}
-                                                    className="flex-1 min-w-[200px] bg-transparent border border-transparent hover:border-[#eaeaea] focus:border-[#3bda71] focus:bg-[#fafff9] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
+                                                    className="flex-1 min-w-[200px] bg-transparent border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                                     rows={1}
                                                     onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
                                                     placeholder="Project description..."
@@ -585,7 +620,7 @@ export default function WorkspacePage() {
                                                 <textarea
                                                     value={ex}
                                                     onChange={(e) => updateExtracurricular(i, e.target.value)}
-                                                    className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#3bda71] focus:bg-[#fafff9] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
+                                                    className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                                     rows={1}
                                                     onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
                                                 />
@@ -607,7 +642,7 @@ export default function WorkspacePage() {
                                                 <textarea
                                                     value={lead}
                                                     onChange={(e) => updateLeadership(i, e.target.value)}
-                                                    className="w-full bg-transparent text-[13px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#3bda71] focus:bg-[#fafff9] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
+                                                    className="w-full bg-transparent text-[13px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                                     rows={1}
                                                     onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
                                                 />
@@ -619,12 +654,28 @@ export default function WorkspacePage() {
 
                         </div>{/* end paper */}
                         <div className="h-10" />
-                    </>
+                    </motion.div>
                 ) : stage === "processing" ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+                    <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
                         <KineticDotsLoader />
-                        <p className="text-[#555] text-[15px] font-medium mt-[-20px]">Tailoring your resume…</p>
-                        <p className="text-[#999] text-[13px]">Parsing PDF · Structuring data</p>
+                        <p className="text-[#555] text-[15px] font-medium">Tailoring your resume…</p>
+                        <div className="flex flex-col gap-1.5">
+                            {PROCESSING_STEPS.map((label, i) => (
+                                <motion.div
+                                    key={label}
+                                    animate={{
+                                        opacity: i === processingStep ? 1 : 0.45,
+                                    }}
+                                    transition={{ duration: 0.25 }}
+                                    className={`flex items-center gap-2 text-[13px] font-medium ${i === processingStep ? "text-[#333]" : "text-[#999]"}`}
+                                >
+                                    <span
+                                        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i === processingStep ? "bg-[#3bda71] animate-pulse" : "bg-[#d0d0d0]"}`}
+                                    />
+                                    {label}
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center gap-3">
