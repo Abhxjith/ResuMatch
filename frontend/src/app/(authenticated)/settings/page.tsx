@@ -12,7 +12,7 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((u) => {
+        const unsubscribe = auth.onAuthStateChanged((u: User | null) => {
             setUser(u);
             setLoading(false);
         });
