@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { inter } from "../../../src/lib/fonts";
 import { auth } from "../../../src/lib/firebase";
+import type { User } from "firebase/auth";
 
 export default function WorkspaceLayout({
     children,
@@ -19,7 +20,7 @@ export default function WorkspaceLayout({
     const [authChecked, setAuthChecked] = useState(false);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged((user: User | null) => {
             setAuthChecked(true);
             if (!user) {
                 router.replace("/auth");
