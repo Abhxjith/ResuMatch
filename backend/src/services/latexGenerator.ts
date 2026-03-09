@@ -98,7 +98,7 @@ export async function generateLatex(resumeData: any): Promise<{ latexSource: str
     };
 
     if (resumeData.summary) {
-        section('OBJECTIVE', () => drawText(sanitize(resumeData.summary), MARGIN, { size: 10, maxWidth: contentWidth }));
+        section('PROFESSIONAL SUMMARY', () => drawText(sanitize(resumeData.summary), MARGIN, { size: 10, maxWidth: contentWidth }));
     }
 
     if ((resumeData.education || []).length) {
@@ -128,7 +128,7 @@ export async function generateLatex(resumeData: any): Promise<{ latexSource: str
     }
 
     if ((resumeData.experience || []).length) {
-        section('EXPERIENCE', () => {
+        section('WORK EXPERIENCE', () => {
             for (const exp of resumeData.experience) {
                 const role = sanitize(exp.role);
                 const dates = `${exp.startDate || ''} – ${exp.endDate || 'Present'}`.trim();
@@ -168,6 +168,15 @@ export async function generateLatex(resumeData: any): Promise<{ latexSource: str
         section('LEADERSHIP', () => {
             for (const l of resumeData.leadership) {
                 drawText(`• ${sanitize(l)}`, MARGIN, { size: 10, maxWidth: contentWidth });
+            }
+        });
+    }
+
+    if ((resumeData.certifications || []).length) {
+        section('CERTIFICATIONS', () => {
+            for (const c of resumeData.certifications) {
+                const line = typeof c === 'string' ? c : sanitize(c.name || c.title || c);
+                drawText(`• ${line}`, MARGIN, { size: 10, maxWidth: contentWidth });
             }
         });
     }

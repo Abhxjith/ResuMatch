@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "build": "prisma generate && tsc"
+    "build": "prisma generate && tsc",
+    "test-gemini-key": "node -r dotenv/config scripts/test-gemini-key.js dotenv_config_path=.env"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

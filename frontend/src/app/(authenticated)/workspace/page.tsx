@@ -173,6 +173,13 @@ export default function WorkspacePage() {
         setOptimized({ ...optimized, leadership: newLead });
     };
 
+    const updateCertification = (index: number, value: string) => {
+        if (!optimized) return;
+        const newCerts = [...(optimized.certifications || [])];
+        newCerts[index] = value;
+        setOptimized({ ...optimized, certifications: newCerts });
+    };
+
     // ── Download ─────────────────────────────────────────────────────────────
     const [isDownloading, setIsDownloading] = useState(false);
     const handleDownload = async () => {
@@ -217,13 +224,10 @@ export default function WorkspacePage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-24 rounded-2xl mb-10 shadow-sm relative overflow-hidden flex items-center px-6 bg-cover bg-center bg-no-repeat"
+                    className="w-full h-24 rounded-2xl mb-10 shadow-sm relative overflow-hidden flex items-center justify-center px-6 bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: "url('/Rectangle.png')" }}
                 >
                     <div className="absolute inset-0 bg-black/20 rounded-2xl" aria-hidden />
-                    <p className="relative z-10 text-white font-medium text-[15px] md:text-[17px] tracking-tight drop-shadow-sm">
-                        Shape your resume to your dream job
-                    </p>
                 </motion.div>
 
                 <div className="flex flex-col gap-6 w-full max-w-[500px]">
@@ -271,11 +275,32 @@ export default function WorkspacePage() {
                         />
                     </motion.div>
 
-                    {/* Error */}
+                    {/* Error — high load / try again */}
                     {stage === "error" && error && (
-                        <div className="w-full bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-red-600 text-[14px]">
-                            {error}
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="w-full rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 to-orange-50/50 px-5 py-5 shadow-sm"
+                        >
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[15px] font-medium text-[#1a1a1a] mb-1">We're experiencing high load</p>
+                                    <p className="text-[14px] text-[#555] leading-snug mb-4">{error}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setError(null); setStage("idle"); }}
+                                        className="text-[14px] font-medium text-amber-700 hover:text-amber-800 underline underline-offset-2"
+                                    >
+                                        Try again
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
                     )}
 
                     {/* Primary Button */}
@@ -414,9 +439,9 @@ export default function WorkspacePage() {
                                 />
                             </div>
 
-                            {/* ═══ OBJECTIVE ════════════════════════════════════════════ */}
+                            {/* ═══ PROFESSIONAL SUMMARY ════════════════════════════════════════════ */}
                             <div className="mb-2.5">
-                                <p className="text-[11.5px] font-black uppercase tracking-wider">OBJECTIVE</p>
+                                <p className="text-[11.5px] font-black uppercase tracking-wider">PROFESSIONAL SUMMARY</p>
                                 <hr className="border-t border-black mb-1" />
                                 <textarea
                                     value={optimized.summary || ""}
@@ -503,10 +528,10 @@ export default function WorkspacePage() {
                                 </div>
                             )}
 
-                            {/* ═══ EXPERIENCE ════════════════════════════════════════ */}
+                            {/* ═══ WORK EXPERIENCE ════════════════════════════════════════ */}
                             {(optimized.experience && optimized.experience.length > 0) && (
                                 <div className="mb-1.5">
-                                    <p className="text-[11px] font-black uppercase tracking-wider">EXPERIENCE</p>
+                                    <p className="text-[11px] font-black uppercase tracking-wider">WORK EXPERIENCE</p>
                                     <hr className="border-t border-black mb-0.5" />
                                     {optimized.experience.map((exp: any, i: number) => (
                                         <div key={i} className="mb-1">
@@ -623,6 +648,26 @@ export default function WorkspacePage() {
                                                     className="w-full bg-transparent text-[12.5px] leading-snug border border-transparent hover:border-[#eaeaea] focus:border-[#666] focus:bg-[#fafafa] rounded p-0.5 outline-none resize-none transition-all overflow-hidden"
                                                     rows={1}
                                                     onInput={(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; }}
+                                                />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* ═══ CERTIFICATIONS ════════════════════════════════════════ */}
+                            {(optimized.certifications && optimized.certifications.length > 0) && (
+                                <div className="mb-2">
+                                    <p className="text-[11.5px] font-black uppercase tracking-wider">CERTIFICATIONS</p>
+                                    <hr className="border-t border-black mb-2" />
+                                    <ul className="list-none pl-3 space-y-1">
+                                        {optimized.certifications.map((cert: string, i: number) => (
+                                            <li key={i} className="flex items-start gap-1.5">
+                                                <span className="mt-[3px] text-[11px] flex-shrink-0">•</span>
+                                                <input
+                                                    value={cert}
+                                                    onChange={(e) => updateCertification(i, e.target.value)}
+                                                    className="w-full bg-transparent text-[12.5px] leading-snug border-b border-transparent hover:border-[#ccc] focus:border-[#666] outline-none"
                                                 />
                                             </li>
                                         ))}

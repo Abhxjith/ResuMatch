@@ -5,14 +5,28 @@ import { motion } from "motion/react";
 import { BlurredStagger } from "../ui/blurred-stagger-text";
 import { inter } from "../../lib/fonts";
 
-export default function Pricing() {
-    const features = [
-        "1 resume preview only",
-        "No download",
-        "No copy",
-        "No history"
-    ];
+const FREE_FEATURES = [
+    "1 ATS-optimized resume",
+    "Keyword-matched to job description",
+    "Standard ATS-friendly PDF",
+    "Preview & edit before download",
+];
 
+const PRO_FEATURES = [
+    "Unlimited ATS-optimized resumes",
+    "Keyword & action-verb optimization",
+    "Download PDF anytime",
+    "Resume history & versions",
+];
+
+const TEAM_FEATURES = [
+    "Everything in Pro",
+    "Bulk resume optimization",
+    "Shared templates",
+    "Priority support",
+];
+
+export default function Pricing() {
     return (
         <motion.section
             id="pricing"
@@ -41,23 +55,23 @@ export default function Pricing() {
                     >
                         <Image src="/bee.png" alt="bee icon" width={80} height={80} className="w-full h-full object-contain mix-blend-multiply" />
                     </motion.div>
-                    <BlurredStagger text="Plans to Boost your Job Search." as="span" inView staggerChildren={0.028} letterDuration={0.5} className="inline" />
+                    <BlurredStagger text="ATS-Perfect Resumes." as="span" inView staggerChildren={0.028} letterDuration={0.5} className="inline" />
                 </h2>
                 <motion.p
                     initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-                    className="text-[#666] text-[16px] md:text-[18px] font-medium tracking-[-0.02em]"
+                    className="text-[#666] text-[16px] md:text-[18px] font-medium tracking-[-0.02em] text-center max-w-xl"
                 >
-                    shape your resume to your dream job
+                    Pass applicant tracking systems. Get more interviews.
                 </motion.p>
             </motion.div>
 
-            {/* Pricing Cards Container */}
+            {/* Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full px-3 sm:px-4 md:px-0">
 
-                {/* Base Plan */}
+                {/* Free */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -65,17 +79,17 @@ export default function Pricing() {
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
                     className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
                 >
-                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">base plan.</h3>
-                    <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
-                    <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
-                    <button className="w-full py-3 rounded-full bg-[#e6faee] text-[#111] text-[14px] font-medium mb-6 hover:bg-[#d1f2e0] transition-colors tracking-tight">
-                        select plan
-                    </button>
+                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">Free</h3>
+                    <p className="text-[#999] text-[11px] font-medium mb-6">Try ATS optimization</p>
+                    <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">$0</div>
+                    <a href="/auth" className="w-full py-3 rounded-full bg-[#e6faee] text-[#111] text-[14px] font-medium mb-6 hover:bg-[#d1f2e0] transition-colors tracking-tight text-center block">
+                        get started
+                    </a>
                     <div className="bg-[#f4f4f4] rounded-2xl p-5 flex-1">
                         <ul className="space-y-3.5">
-                            {features.map((feature, i) => (
+                            {FREE_FEATURES.map((feature, i) => (
                                 <li key={i} className="flex items-start gap-2.5 text-[12px] font-semibold tracking-tight text-[#111]">
-                                    <div className="mt-0.5 text-[#111]">
+                                    <div className="mt-0.5 text-[#111] flex-shrink-0">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="4"></rect><path d="m9 12 2 2 4-4"></path></svg>
                                     </div>
                                     {feature}
@@ -85,25 +99,26 @@ export default function Pricing() {
                     </div>
                 </motion.div>
 
-                {/* Favorite Plan */}
+                {/* Pro - highlighted */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-                    className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
+                    className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-2 ring-[#3bda71] relative"
                 >
-                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">favorite plan.</h3>
-                    <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#3bda71] text-[11px] font-semibold text-black">Best for job seekers</span>
+                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">Pro</h3>
+                    <p className="text-[#999] text-[11px] font-medium mb-6">Unlimited ATS resumes</p>
                     <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
-                    <button className="w-full py-3 rounded-full bg-[#5be48c] hover:bg-[#4ddc7f] text-black text-[14px] font-medium mb-6 transition-colors tracking-tight">
-                        select plan
-                    </button>
+                    <a href="/auth" className="w-full py-3 rounded-full bg-[#5be48c] hover:bg-[#4ddc7f] text-black text-[14px] font-medium mb-6 transition-colors tracking-tight text-center block">
+                        try for free
+                    </a>
                     <div className="bg-[#f4f4f4] rounded-2xl p-5 flex-1">
                         <ul className="space-y-3.5">
-                            {features.map((feature, i) => (
+                            {PRO_FEATURES.map((feature, i) => (
                                 <li key={i} className="flex items-start gap-2.5 text-[12px] font-semibold tracking-tight text-[#111]">
-                                    <div className="mt-0.5 text-[#111]">
+                                    <div className="mt-0.5 text-[#111] flex-shrink-0">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="4"></rect><path d="m9 12 2 2 4-4"></path></svg>
                                     </div>
                                     {feature}
@@ -113,7 +128,7 @@ export default function Pricing() {
                     </div>
                 </motion.div>
 
-                {/* Super Plan */}
+                {/* Team */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -121,17 +136,17 @@ export default function Pricing() {
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.45 }}
                     className="bg-white rounded-[2rem] p-7 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-[#eaeaea]"
                 >
-                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">super plan.</h3>
-                    <p className="text-[#999] text-[11px] font-medium mb-6">this is the base plan</p>
-                    <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">Free</div>
-                    <button className="w-full py-3 rounded-full bg-[#e6faee] text-[#111] text-[14px] font-medium mb-6 hover:bg-[#d1f2e0] transition-colors tracking-tight">
-                        select plan
+                    <h3 className="text-[18px] font-semibold tracking-tight text-[#111] mb-0.5">Team</h3>
+                    <p className="text-[#999] text-[11px] font-medium mb-6">Coming soon</p>
+                    <div className="text-[28px] font-medium tracking-tight text-[#111] mb-6">—</div>
+                    <button disabled className="w-full py-3 rounded-full bg-[#e6faee] text-[#999] text-[14px] font-medium mb-6 cursor-not-allowed tracking-tight">
+                        coming soon
                     </button>
                     <div className="bg-[#f4f4f4] rounded-2xl p-5 flex-1">
                         <ul className="space-y-3.5">
-                            {features.map((feature, i) => (
+                            {TEAM_FEATURES.map((feature, i) => (
                                 <li key={i} className="flex items-start gap-2.5 text-[12px] font-semibold tracking-tight text-[#111]">
-                                    <div className="mt-0.5 text-[#111]">
+                                    <div className="mt-0.5 text-[#111] flex-shrink-0">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="4"></rect><path d="m9 12 2 2 4-4"></path></svg>
                                     </div>
                                     {feature}

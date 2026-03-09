@@ -4,7 +4,7 @@ dotenv.config();
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RESUME_OPTIMIZER_SYSTEM_PROMPT, getUserMessage } from '../prompts/resumeOptimizerPrompt';
 
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export const optimizeResume = async (parsedResumeJson: any, jobTitle: string, jobDescription: string) => {

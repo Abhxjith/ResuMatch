@@ -10,10 +10,11 @@ export interface OptimizedResume {
     linkedin?: string;
     website?: string;
     summary: string;
-    skills: Record<string, string[]> | string[];  // object (categorized) or legacy flat array
+    skills: Record<string, string[]> | string[];
     experience: { role: string; company: string; location?: string; startDate?: string; endDate?: string; bullets: string[] }[];
     projects: any[];
-    education: { degree: string; school: string; endDate?: string, gpa?: string }[];
+    education: { degree: string; school: string; endDate?: string; gpa?: string }[];
+    certifications?: string[];
     extracurriculars?: string[];
     leadership?: string[];
 }
@@ -46,7 +47,13 @@ export async function generateResume(
 
     const json = await res.json();
     if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to generate resume');
+        const raw = json.message || 'Failed to generate resume';
+        // Show user-friendly message for API/billing/backend issues
+        const isServerLoad = res.status === 500 || /API key|API_KEY|billing|generativelanguage|Gemini|high load/i.test(raw);
+        throw new Error(isServerLoad
+            ? "We're experiencing high load. Please try again in a few minutes."
+            : raw
+        );
     }
     return json.data as GenerateResumeResult;
 }

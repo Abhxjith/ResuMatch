@@ -4,7 +4,7 @@ dotenv.config();
 import { extractText, getDocumentProxy } from 'unpdf';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export const parseResume = async (fileBuffer: Buffer) => {

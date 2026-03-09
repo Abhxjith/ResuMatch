@@ -1,5 +1,9 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
+import * as path from 'path';
+
+// Load .env from backend directory so it works regardless of cwd
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config(); // fallback to default
 
 if (process.env.VERCEL && !process.env.DATABASE_URL) {
     process.env.DATABASE_URL = 'file:/tmp/dev.db';
@@ -185,4 +189,44 @@ app.get('/history', async (_req, res) => {
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`ResuMatch backend running on http://localhost:${PORT}`));
+const geminiKey = (process.env.GEMINI_API_KEY || '').trim();
+
+async function validateGeminiKey() {
+    if (!geminiKey) {
+        console.warn('WARNING: GEMINI_API_KEY is not set. Resume generation will fail.');
+        return;
+    }
+    console.log(`GEMINI_API_KEY loaded (length ${geminiKey.length}).`);
+    // Safe fingerprint so you can confirm the right key is loaded (e.g. new vs old)
+    const fp = geminiKey.length >= 8
+        ? `${geminiKey.slice(0, 4)}...${geminiKey.slice(-4)}`
+        : '(too short)';
+    console.log(`Key fingerprint: ${fp} (check this matches your new key in AI Studio)`);
+    try {
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(geminiKey);
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        await model.generateContent('Hi');
+        console.log('Gemini API key validated.');
+    } catch (err: any) {
+        const isInvalidKey = err?.status === 400 ||
+            err?.message?.includes('API_KEY_INVALID') ||
+            err?.errorDetails?.some((d: any) => d?.reason === 'API_KEY_INVALID');
+        if (isInvalidKey) {
+            console.error('');
+            console.error('Gemini API key was rejected by Google (API_KEY_INVALID).');
+            console.error('  • New key: https://aistudio.google.com/apikey → use "Create API key in NEW project"');
+            console.error('  • If you used an existing project: enable "Generative Language API" in Google Cloud Console for that project.');
+            console.error('  • Key restrictions: Credentials → your key → API restrictions = "Don\'t restrict key" or include "Generative Language API".');
+            console.error('  • Run: pnpm run test-gemini-key (from backend) to test the key.');
+            console.error('');
+        } else {
+            console.warn('Gemini key check failed:', err?.message || err);
+        }
+    }
+}
+
+app.listen(PORT, async () => {
+    console.log(`ResuMatch backend running on http://localhost:${PORT}`);
+    validateGeminiKey();
+});
